@@ -85,7 +85,7 @@ def bar_plot(data, col, fig_title, show):
     """Bar plot"""
     fig = px.bar(data, x = data.index, y = col,
             color = col,
-            text_auto = '$.2s',
+            text_auto = '.2s',
             title = fig_title,
             hover_name=data.index
             )
