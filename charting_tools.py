@@ -168,6 +168,35 @@ def line_plot(data, col, title, show):
     else:
         return fig
 
+
+def comparison_plot(data, col, days, title, show):
+    """Line plot with a comparison to the previous period"""
+    data_recent = data.iloc[-days:]
+    data_past = data.iloc[-2*days:-days]
+    data_past.index = data_recent.index
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=data_recent.index, y=data_recent[col],
+                            mode='lines', name=f'past {days} days'))
+    fig.add_trace(go.Scatter(x=data_past.index, y=data_past[col],
+                            mode='lines', line=dict(dash='dash'), name=f'previous {days} days'))
+
+    # Calculate the mean values
+    mean_recent = data_recent[col].mean()
+    mean_past = data_past[col].mean()
+    # Add horizontal mean lines
+    fig.add_shape(type='line', line=dict(dash='dot', color='blue'),
+                x0=data_recent.index.min(), x1=data_recent.index.max(), y0=mean_recent, y1=mean_recent)
+    fig.add_shape(type='line', line=dict(dash='dot', color='red'),
+                x0=data_past.index.min(), x1=data_past.index.max(), y0=mean_past, y1=mean_past)
+    fig.update_layout(title=title)
+
+    if show:
+        fig.show()
+    else:
+        return fig
+
+
 def bar_plot_with_line(df, col, fig_title, show):
     """Bar plot with a line plot"""
     fig = go.Figure()
