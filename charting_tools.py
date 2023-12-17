@@ -102,12 +102,21 @@ def bar_plot(data, col, fig_title, show):
 
 def bar_plot_horizontal(data, col, title):
     """Horizontal bar plot"""
-    fig = px.bar(data, x = data[col], y = data.index, orientation='h',
-                title = title, color=col, text_auto='.2s')
-    hide_axis_title(fig)
-    fig = fig_add_mean(fig, data, col)
-    fig.update_traces(marker_showscale=False)
+    #sorted_data = data.sort_values(by=col, ascending=True)
+    fig = px.bar(data, x=col, y=data.index, orientation='h', title=title,
+                category_orders={data.index.name: data.sort_values(by=col, ascending=False).index.tolist()})
+
+    fig.update_layout(coloraxis_showscale=False)  # This line hides the color scale
     fig.show(renderer="notebook")
+
+
+# Example usage
+# bar_plot_horizontal(your_dataframe, 'your_column', 'Your Plot Title')
+
+
+# Example usage
+# bar_plot_horizontal(your_dataframe, 'your_column', 'Your Plot Title')
+
 
 def stack_bar_plot(df, title, show):
     """Stacked bar plot"""
@@ -192,7 +201,7 @@ def comparison_plot(data, col, days, title, show):
     fig.update_layout(title=title)
 
     if show:
-        fig.show()
+        fig.show(renderer="notebook")
     else:
         return fig
 

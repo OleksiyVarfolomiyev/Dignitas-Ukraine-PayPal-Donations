@@ -19,14 +19,18 @@ def format_money_USD(value):
 
 def read_data():
     dtypes = {
-        'Currency': 'str',
-        'Category': 'str',
+        'FullName': 'str',
+        'Email': 'str',
         'Country': 'str',
-        'Amount': 'float'
+        'State': 'str',
+        'City': 'str',
+        'Currency': 'str',
+        'Amount': 'float',
+        'Category': 'str'
     }
-    
+
     df = pd.read_csv('data/PayPal.csv', dtype=dtypes, parse_dates=['Date'])
-    
+
     df['Date'] = pd.to_datetime(df['Date'])
     df['Category'].fillna('', inplace=True)
     df['Country'].fillna('', inplace=True)
