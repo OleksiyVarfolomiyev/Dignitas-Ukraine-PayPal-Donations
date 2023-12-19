@@ -282,3 +282,26 @@ def chart_by_period(data, categories, period, title1, title2, value = 'UAH'):
     fig2 = stack_bar_plot(data_sum_by_period_by_category, title2, False)
 
     subplot_vertical(data_sum_by_period, data_sum_by_period, value, value, fig1, fig2, 2, 1, 'xy', 'xy', 'stack', title1, title2, True)
+
+
+def area_plot(df, col, title, show=True):
+    """Area plot"""
+    # Ensure 'Date' is of datetime type
+    #df['Date'] = pd.to_datetime(df['Date'])
+
+    # Group by 'Date' and 'Category' and sum col
+    df = df.groupby(['Date', 'Category'])[col].sum().reset_index()
+
+    # Create a new DataFrame that has an entry for each category on each date
+    df_full = df.set_index(['Date', 'Category']).unstack(fill_value=0).stack().reset_index()
+
+    # Calculate the cumulative sum for each category
+    df_full['CumulativeAmount'] = df_full.sort_values('Date').groupby('Category')[col].cumsum().round(0)
+
+    fig = px.area(df_full, x="Date", y="CumulativeAmount", color="Category", title=title)
+    hide_axis_title(fig)
+
+    if show:
+        fig.show(renderer='notebook')
+    else:
+        return fig
