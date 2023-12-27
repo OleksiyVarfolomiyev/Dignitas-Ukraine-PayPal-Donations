@@ -107,32 +107,25 @@ def bar_plot_horizontal(data, col, title):
     fig = px.bar(data, x=col, y=data.index, orientation='h', title=title,
                 category_orders={data.index.name: data.sort_values(by=col, ascending=False).index.tolist()})
 
-    fig.update_layout(coloraxis_showscale=False)  # This line hides the color scale
+    fig.update_layout(coloraxis_showscale=False)
     fig.show(renderer="notebook")
-
-
-# Example usage
-# bar_plot_horizontal(your_dataframe, 'your_column', 'Your Plot Title')
-
-
-# Example usage
-# bar_plot_horizontal(your_dataframe, 'your_column', 'Your Plot Title')
 
 
 def stack_bar_plot(df, title, show):
     """Stacked bar plot"""
     df['Date'] = df['Date'].astype(str)
-    #mean_value = df[df.columns[1:]].sum(axis=1).mean()
     mean_value = df[df.columns.drop('Date')].sum(axis=1).mean()
 
     fig = go.Figure()
 
-    for column in df.columns.drop('Date'):
-        fig.add_trace(
-        go.Bar(name=column,
-                x = df['Date'], y = df[column],
-                text = df[column].apply(etl.format_money_USD)
-        ))
+    for column in df.columns:
+        if column != 'Date':
+            fig.add_trace(
+                go.Bar(name=column,
+                    x = df['Date'], y = df[column],
+                    text = df[column].apply(etl.format_money_USD)
+                )
+            )
 
     fig.update_layout(
         barmode='stack',
