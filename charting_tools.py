@@ -81,7 +81,7 @@ def pie_plot(data, col, title, show):
     else:
         return fig
 
-def bar_plot(data, col, fig_title, show):
+def bar_plot(data, col, fig_title, mean=True, show=True):
     """Bar plot"""
     fig = px.bar(data, x = data.index, y = col,
             color = col,
@@ -92,8 +92,9 @@ def bar_plot(data, col, fig_title, show):
     fig.update_traces(hovertemplate='%{x}<br>%{y:$,.2f}')
 
     fig.layout.coloraxis.showscale = False
+    if mean:
+        fig = fig_add_mean(fig, data, col)
 
-    fig = fig_add_mean(fig, data, col)
     hide_axis_title(fig)
     if show:
         fig.show(renderer="notebook")
@@ -268,11 +269,11 @@ def bar_plot_grouped(data, col1, col2, fig_title, show):
     else:
         return fig
 
-def chart_by_period(data, categories, period, title1, title2, value = 'UAH'):
+def chart_by_period(data, categories, period, title1, title2, mean = True, value = 'Amount'):
     """bar plot by period on top and stacked bar plot by period on the bottom"""
     data_sum_by_period = da.sum_by_period(data, period, value)
     data_sum_by_period.index = data_sum_by_period.index.start_time
-    fig1 = bar_plot(data_sum_by_period, value, title1, False)
+    fig1 = bar_plot(data_sum_by_period, value, title1, mean, False)
 
     data_sum_by_period_by_category = da.sum_by_period_by_category(categories, period, data, 'Category', value).fillna(0)
 
