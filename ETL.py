@@ -35,4 +35,7 @@ def read_data():
     df['Category'].fillna('', inplace=True)
     df['Country'].fillna('', inplace=True)
 
+    df['Category'] = df['Category'].replace('100 Drones for Ukraine', '1000 Drones for Ukraine')
+    df['Category'] = df['Category'].replace('1000 Drones of Ukraine', '1000 Drones for Ukraine')
+
     return df

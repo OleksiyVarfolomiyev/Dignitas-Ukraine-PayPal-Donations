@@ -25,6 +25,7 @@ def fig_add_mean(fig, data, column=None, row=None, col_num=None):
     )
     return fig
 
+
 def subplot_horizontal(fig1, fig2, rows, cols, type1, type2, title1, title2, show):
     fig = make_subplots(rows=rows, cols=cols,
                     specs=[[{'type': type1}, {'type': type2}]],
@@ -38,6 +39,7 @@ def subplot_horizontal(fig1, fig2, rows, cols, type1, type2, title1, title2, sho
         fig.show(renderer="notebook")
     else:
         return fig
+
 
 def subplot_vertical(data1, data2, col1, col2, fig1, fig2, rows, cols, type1, type2, barmode, title1, title2, show):
 
@@ -69,6 +71,7 @@ def subplot_vertical(data1, data2, col1, col2, fig1, fig2, rows, cols, type1, ty
     else:
         return fig
 
+
 def pie_plot(data, col, title, show):
     """Pie plot"""
     fig = px.pie(data,
@@ -80,6 +83,7 @@ def pie_plot(data, col, title, show):
         fig.show(renderer="notebook")
     else:
         return fig
+
 
 def bar_plot(data, col, fig_title, mean=True, show=True):
     """Bar plot"""
@@ -100,6 +104,7 @@ def bar_plot(data, col, fig_title, mean=True, show=True):
         fig.show(renderer="notebook")
     else:
         return fig
+
 
 def bar_plot_horizontal(data, col, title):
     """Horizontal bar plot"""
@@ -148,6 +153,7 @@ def stack_bar_plot(df, title, show):
     else:
         return fig
 
+
 def line_plot(data, col, title, show):
     """Line plot"""
     fig = px.line(data, x = data.index, y = data[col], title = title)
@@ -180,11 +186,10 @@ def comparison_plot(data, col, days, title, show):
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=data_recent.index, y=data_recent[col],
-                            mode='lines', name=f'past {days} days'))
+                            mode='lines', name=f'Last {days} days'))
     fig.add_trace(go.Scatter(x=data_past.index, y=data_past[col],
-                            mode='lines', line=dict(dash='dash'), name=f'previous {days} days'))
+                            mode='lines', line=dict(dash='dash'), name=f'Preceding period'))
 
-    # Calculate the mean values
     mean_recent = data_recent[col].mean()
     mean_past = data_past[col].mean()
     # Add horizontal mean lines
@@ -204,12 +209,10 @@ def bar_plot_with_line(df, col, fig_title, show):
     """Bar plot with a line plot"""
     fig = go.Figure()
 
-# Create a color scale
     scale = px.colors.sequential.Viridis
 # Map y-values to colors
     df['color'] = df[col].apply(lambda y: scale[int(y * (len(scale) - 1) / max(df[col]))])
 
-# Add a Bar trace for the bar plot
     fig.add_trace(
     go.Bar(x = df.index,
             y = df[col],
@@ -219,7 +222,6 @@ def bar_plot_with_line(df, col, fig_title, show):
         )
     )
 
-# Add a Scatter trace for the line plot
     fig.add_trace(
     go.Scatter(x = df.index, y = df[col],
             mode='lines+markers', line_shape='linear',
@@ -241,8 +243,10 @@ def bar_plot_with_line(df, col, fig_title, show):
 
 def bar_plot_grouped(data, col1, col2, fig_title, show):
     """Grouped bar plot"""
-    trace1 = go.Bar(x=data.index, y=data[col1], name=col1, text=data[col1].apply(etl.format_money_USD), marker_color = 'blue', showlegend=False)
-    trace2 = go.Bar(x=data.index, y=data[col2], name=col2, text=data[col2].apply(etl.format_money_USD), marker_color = 'yellow', showlegend=False)
+    trace1 = go.Bar(x=data.index, y=data[col1], name=col1, text=data[col1].apply(etl.format_money_USD),
+                    marker_color = 'blue', showlegend=False)
+    trace2 = go.Bar(x=data.index, y=data[col2], name=col2, text=data[col2].apply(etl.format_money_USD),
+                    marker_color = 'yellow', showlegend=False)
 
     layout = go.Layout(
         barmode='group',
@@ -280,16 +284,9 @@ def chart_by_period(data, categories, period, title1, title2, mean = True, value
 
 def area_plot(df, col, title, show=True):
     """Area plot"""
-    # Ensure 'Date' is of datetime type
-    #df['Date'] = pd.to_datetime(df['Date'])
 
-    # Group by 'Date' and 'Category' and sum col
     df = df.groupby(['Date', 'Category'])[col].sum().reset_index()
-
-    # Create a new DataFrame that has an entry for each category on each date
     df_full = df.set_index(['Date', 'Category']).unstack(fill_value=0).stack().reset_index()
-
-    # Calculate the cumulative sum for each category
     df_full['CumulativeAmount'] = df_full.sort_values('Date').groupby('Category')[col].cumsum().round(0)
 
     fig = px.area(df_full, x="Date", y="CumulativeAmount", color="Category", title=title)
