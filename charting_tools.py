@@ -1,7 +1,7 @@
+import read_PayPal_data_from_AWS as rpd
 import data_aggregation_tools as da
-import ETL as etl
+
 import plotly.graph_objects as go
-import data_aggregation_tools as da
 import plotly.express as px
 from plotly.subplots import make_subplots
 
@@ -128,7 +128,7 @@ def stack_bar_plot(df, title, show):
             fig.add_trace(
                 go.Bar(name=column,
                     x = df['Date'], y = df[column],
-                    text = df[column].apply(etl.format_money_USD)
+                    text = df[column].apply(rpd.format_money_USD)
                 )
             )
 
@@ -243,9 +243,9 @@ def bar_plot_with_line(df, col, fig_title, show):
 
 def bar_plot_grouped(data, col1, col2, fig_title, show):
     """Grouped bar plot"""
-    trace1 = go.Bar(x=data.index, y=data[col1], name=col1, text=data[col1].apply(etl.format_money_USD),
+    trace1 = go.Bar(x=data.index, y=data[col1], name=col1, text=data[col1].apply(rpd.format_money_USD),
                     marker_color = 'blue', showlegend=False)
-    trace2 = go.Bar(x=data.index, y=data[col2], name=col2, text=data[col2].apply(etl.format_money_USD),
+    trace2 = go.Bar(x=data.index, y=data[col2], name=col2, text=data[col2].apply(rpd.format_money_USD),
                     marker_color = 'yellow', showlegend=False)
 
     layout = go.Layout(
