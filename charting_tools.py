@@ -34,7 +34,8 @@ def subplot_horizontal(fig1, fig2, rows, cols, type1, type2, title1, title2, sho
     fig.add_trace(fig1.data[0], row=1, col=1)
     fig.add_trace(fig2.data[0], row=1, col=2)
 
-    fig.update_layout(grid={'columns': cols, 'rows': rows, 'pattern': "independent"})
+    fig.update_layout(grid={'columns': cols, 'rows': rows, 
+                            'pattern': "independent"}, showlegend = False)
     if show:
         fig.show(renderer="notebook")
     else:

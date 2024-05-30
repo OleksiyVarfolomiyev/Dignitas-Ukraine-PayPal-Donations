@@ -3,7 +3,6 @@ import boto3
 import json
 import pandas as pd
 from datetime import datetime
-import datetime as dt
 
 def format_money_USD(value):
     if abs(value) >= 1e6:
@@ -101,6 +100,10 @@ def etl(df):
     df.loc[mask, 'Category'] = '1000 Drones for Ukraine'
     mask = df['Category'].str.contains('Milan', case=False, na=False)
     df.loc[mask, 'Category'] = '1000 Drones for Ukraine'
+    mask = df['Category'].str.contains('BOSTON', case=False, na=False)
+    df.loc[mask, 'Category'] = '1000 Drones for Ukraine'
+    df['Category'] = df['Category'].replace('"VD_TEP"', 'Victory Drones')
+
     mask = df['Category'].str.contains('support ukraine', case=False, na=False)
     df.loc[mask, 'Category'] = 'General'
     mask = df['Category'].str.contains('victory', case=False, na=False)
@@ -159,7 +162,8 @@ def ETL_raw_data(nrows = None):
     df['Country'].fillna('', inplace=True)
     df['Category'] = df['Category'].replace('100 Drones for Ukraine', '1000 Drones for Ukraine')
     df['Category'] = df['Category'].replace('Milan', '1000 Drones for Ukraine')
-
+    df['Category'] = df['Category'].replace('BOSTON', '1000 Drones for Ukraine')
+    df['Category'] = df['Category'].replace('"VD_TEP"', 'Victory Drones')
 
     return df
 
