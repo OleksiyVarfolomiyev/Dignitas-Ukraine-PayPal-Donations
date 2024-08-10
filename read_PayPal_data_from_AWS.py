@@ -23,21 +23,50 @@ def format_money(value):
 def read_PayPal_txs(start_date):
     '''Read only the new PayPal transactions from AWS'''
 
-    access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+    access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
     secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-    s3 = boto3.client('s3', aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key,
-                    region_name='us-east-1')
+    #print("access_key_id: ", access_key_id)
+    #print("secret_access_key: ", secret_access_key)
 
-    objects = s3.list_objects(Bucket='finmap-trans')
+    s3 = boto3.client('s3', aws_access_key_id=access_key_id,
+                            aws_secret_access_key=secret_access_key,
+                            region_name='us-east-1')
+
+    #objects = s3.list_objects(Bucket='finmap-trans')
+
+    #file = open('obj_dates.txt', 'w')
+    objects = []
+    continuation_token = None
+    bucket_name = 'finmap-trans'
+
+    while True:
+        if continuation_token:
+            response = s3.list_objects_v2(Bucket=bucket_name, ContinuationToken=continuation_token)
+        else:
+            response = s3.list_objects_v2(Bucket=bucket_name)
+
+        # Append objects to the list
+        if 'Contents' in response:
+            objects.extend(response['Contents'])
+
+        # Check if there are more objects to retrieve
+        if response.get('IsTruncated'):  # If response is truncated
+            continuation_token = response.get('NextContinuationToken')
+        else:
+            break
 
     transactions = []
 
-    for obj in objects['Contents']:
+    for obj in objects:#['Contents']:
 
         if 'trans-paypal' in obj['Key']:
+            #file.write(f"obj['Key']:  {obj['Key']}\n")
             # Extract the date from the object key
             obj_date_str = '-'.join(obj['Key'].split('-')[2:5]).split('.')[0]
             obj_date = datetime.strptime(obj_date_str, '%Y-%m-%d')
+            #file.write(f"obj_date: {obj_date}\n")
+
+
             # Only process the object if its date is greater than or equal to the specified date
             if obj_date >= start_date:
             #if obj['Key'].startswith('trans-paypal'):
@@ -79,6 +108,7 @@ def etl(df):
     append to existing data in PayPal.csv'''
 
     # ANONIMIZE: Keep only the first name
+    print(df.columns)
     df['FullName'] = df['FullName'].str.split().str[0]
 
     df['Fee'].fillna(0)
@@ -178,5 +208,6 @@ def read_new_PayPal_txs_from_AWS():
 
     start_date = datetime.strptime(start_date, '%Y-%m-%d')
     df_new = read_PayPal_txs(start_date)
+    print(df_new.head())
     etl(df_new)
     return ETL_raw_data()
